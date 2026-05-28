@@ -14,7 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      predictions: {
+        Row: {
+          created_at: string
+          defenders: string[]
+          formation: string
+          forwards: string[]
+          goalkeeper: string | null
+          id: string
+          midfielders: string[]
+          selected_teams: Json
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          defenders?: string[]
+          formation: string
+          forwards?: string[]
+          goalkeeper?: string | null
+          id?: string
+          midfielders?: string[]
+          selected_teams?: Json
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          defenders?: string[]
+          formation?: string
+          forwards?: string[]
+          goalkeeper?: string | null
+          id?: string
+          midfielders?: string[]
+          selected_teams?: Json
+          total_points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
