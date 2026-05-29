@@ -365,8 +365,66 @@ function PlayerSlot({
               </ul>
             )}
           </div>
+
+          <CustomPlayerInput
+            count={count}
+            selectedLength={selected.length}
+            onAdd={(name) => {
+              if (selected.includes(name)) return;
+              if (count === 1) onChange([name]);
+              else if (selected.length < count) onChange([...selected, name]);
+              else toast.error(`Máximo ${count} jugadores en esta posición.`);
+            }}
+          />
         </>
       )}
+    </div>
+  );
+}
+
+function CustomPlayerInput({
+  count,
+  selectedLength,
+  onAdd,
+}: {
+  count: number;
+  selectedLength: number;
+  onAdd: (name: string) => void;
+}) {
+  const [value, setValue] = useState("");
+  const full = selectedLength >= count && count !== 1;
+
+  function submit() {
+    const v = value.trim();
+    if (!v) return;
+    if (v.length > 80) return toast.error("Nombre demasiado largo.");
+    onAdd(v);
+    setValue("");
+  }
+
+  return (
+    <div className="mt-3 rounded-lg border border-dashed bg-muted/30 p-3">
+      <div className="mb-2 text-xs font-medium text-muted-foreground">
+        ¿No está en la lista? Añade "Otro" jugador escribiendo su nombre
+      </div>
+      <div className="flex gap-2">
+        <Input
+          placeholder="Nombre del jugador…"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              submit();
+            }
+          }}
+          maxLength={80}
+          disabled={full}
+        />
+        <Button type="button" size="sm" variant="outline" onClick={submit} disabled={!value.trim() || full}>
+          Añadir
+        </Button>
+      </div>
     </div>
   );
 }
