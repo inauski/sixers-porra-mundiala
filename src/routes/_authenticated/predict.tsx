@@ -16,7 +16,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/predict")({
   head: () => ({
     meta: [
-      { title: "Mi predicción — Fantasy Mundial 2026" },
+      { title: "Mi predicción — SixersPredict" },
       { name: "description", content: "Crea tu predicción del Mundial 2026: 12 equipos, formación y once ideal." },
     ],
   }),

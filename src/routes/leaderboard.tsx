@@ -9,9 +9,9 @@ import { findTeamByName } from "@/lib/teams";
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
     meta: [
-      { title: "Clasificación — Fantasy Mundial 2026" },
+      { title: "Clasificación — SixersPredict" },
       { name: "description", content: "Tabla pública con todas las predicciones del fantasy del Mundial 2026 y sus puntuaciones." },
-      { property: "og:title", content: "Clasificación · Fantasy Mundial 2026" },
+      { property: "og:title", content: "Clasificación · SixersPredict" },
       { property: "og:description", content: "Tabla pública de predicciones y puntos del fantasy." },
     ],
   }),
