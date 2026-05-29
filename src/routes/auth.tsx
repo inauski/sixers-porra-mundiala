@@ -14,7 +14,7 @@ import { Header } from "@/components/Header";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Iniciar sesión — Fantasy Mundial 2026" },
+      { title: "Iniciar sesión — SixersPredict" },
       { name: "description", content: "Accede o crea tu cuenta para jugar al fantasy del Mundial 2026." },
     ],
   }),

@@ -6,9 +6,9 @@ import { Trophy, Users, ListChecks, Sparkles, ChevronRight } from "lucide-react"
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Fantasy Mundial 2026 — Predice y compite con tus amigos" },
+      { title: "SixersPredict — Predice y compite con tus amigos" },
       { name: "description", content: "Elige 12 equipos por bombo, tu formación táctica y tu once ideal. Compite en el ranking global del Mundial 2026." },
-      { property: "og:title", content: "Fantasy Mundial 2026" },
+      { property: "og:title", content: "SixersPredict" },
       { property: "og:description", content: "Crea tu predicción y compite en el fantasy oficial del Mundial 2026." },
     ],
   }),
@@ -141,7 +141,7 @@ function HomePage() {
 
       <footer className="border-t bg-card">
         <div className="container mx-auto px-4 py-8 text-center text-sm text-muted-foreground">
-          Fantasy Mundial 2026 · Hecho para los amantes del fútbol
+          SixersPredict · Hecho para los amantes del fútbol
         </div>
       </footer>
     </div>

@@ -75,10 +75,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Fantasy Mundial 2026 — Predice y compite" },
+      { title: "SixersPredict — Predice y compite" },
       { name: "description", content: "Plataforma fantasy del Mundial 2026: elige tus equipos por bombo, tu formación y tu once ideal. Compite en la clasificación global." },
-      { name: "author", content: "Fantasy 2026" },
-      { property: "og:title", content: "Fantasy Mundial 2026" },
+      { name: "author", content: "SixersPredict" },
+      { property: "og:title", content: "SixersPredict" },
       { property: "og:description", content: "Predice y compite en el fantasy del Mundial 2026." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
