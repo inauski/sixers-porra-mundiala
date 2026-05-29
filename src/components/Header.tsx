@@ -1,9 +1,10 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Trophy, Menu, LogOut, User as UserIcon } from "lucide-react";
+import { Trophy, Menu, LogOut, User as UserIcon, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export function Header() {
   const { user, signOut } = useAuth();
@@ -11,11 +12,27 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const { location } = useRouterState();
 
+  const { data: isAdmin } = useQuery({
+    queryKey: ["is-admin", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user!.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      return !!data;
+    },
+  });
+
   const links = [
     { to: "/", label: "Inicio" },
     { to: "/predict", label: "Mi predicción" },
     { to: "/leaderboard", label: "Clasificación" },
+    ...(isAdmin ? [{ to: "/admin", label: "Admin", icon: true }] : []),
   ];
+
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-md">
