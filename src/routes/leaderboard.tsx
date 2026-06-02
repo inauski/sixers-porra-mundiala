@@ -1,10 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
-import { Trophy, Medal, Award } from "lucide-react";
+import { Trophy, Medal, Award, Eye } from "lucide-react";
 import { findFormation } from "@/lib/formations";
 import { findTeamByName } from "@/lib/teams";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
