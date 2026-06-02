@@ -118,6 +118,11 @@ function LeaderboardPage() {
                       <td className="px-4 py-3 text-right">
                         <span className="font-display text-lg font-bold text-primary">{row.total_points}</span>
                       </td>
+                      <td className="px-4 py-3 text-right">
+                        <Button size="sm" variant="outline" onClick={() => setSelected(row)}>
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
