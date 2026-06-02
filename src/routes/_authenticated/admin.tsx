@@ -218,6 +218,29 @@ function AdminPage() {
             Aún no hay predicciones guardadas.
           </div>
         )}
+
+        <section className="mt-12">
+          <h2 className="mb-1 font-display text-2xl font-bold">Bonus por equipos</h2>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Para cada usuario, asigna +1, +2 o +3 puntos por el equipo elegido en cada bombo. Marca la casilla
+            "Penaltis" si el equipo ganó por penaltis (+1 extra).
+          </p>
+          <div className="space-y-6">
+            {(preds ?? []).map((p) => (
+              <UserBonusCard
+                key={p.user_id}
+                userId={p.user_id}
+                displayName={p.profiles?.display_name ?? "Anónimo"}
+                selectedTeams={p.selected_teams}
+                bonusMap={bonusMap}
+                onSaved={() => {
+                  qc.invalidateQueries({ queryKey: ["team-bonuses"] });
+                  qc.invalidateQueries({ queryKey: ["leaderboard"] });
+                }}
+              />
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   );
@@ -225,6 +248,7 @@ function AdminPage() {
 
 const POS_LABEL: Record<"GK" | "DEF" | "MID" | "FWD", string> = {
   GK: "Porteros",
+
   DEF: "Defensas",
   MID: "Mediocentros",
   FWD: "Delanteros",
