@@ -68,9 +68,10 @@ function AdminPage() {
     queryFn: async (): Promise<PredictionRow[]> => {
       const { data, error } = await supabase
         .from("predictions")
-        .select("goalkeeper,defenders,midfielders,forwards");
+        .select("user_id,goalkeeper,defenders,midfielders,forwards,selected_teams,profiles(display_name)")
+        .order("created_at", { ascending: true });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as unknown as PredictionRow[];
     },
   });
 
@@ -83,6 +84,19 @@ function AdminPage() {
       return data ?? [];
     },
   });
+
+  const { data: bonuses } = useQuery({
+    queryKey: ["team-bonuses"],
+    enabled: !!isAdmin,
+    queryFn: async (): Promise<BonusRow[]> => {
+      const { data, error } = await (supabase as any)
+        .from("team_bonuses")
+        .select("user_id,bombo,points,penalty");
+      if (error) throw error;
+      return (data ?? []) as BonusRow[];
+    },
+  });
+
 
   // Build unique sorted player list from all predictions, grouped by position
   const grouped = useMemo(() => {
