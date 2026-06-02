@@ -82,6 +82,7 @@ function LeaderboardPage() {
                     <th className="hidden px-4 py-3 text-left md:table-cell">Formación</th>
                     <th className="hidden px-4 py-3 text-left lg:table-cell">Equipos elegidos</th>
                     <th className="px-4 py-3 text-right">Puntos</th>
+                    <th className="px-4 py-3 text-right">Ver</th>
                   </tr>
                 </thead>
                 <tbody>
