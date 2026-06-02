@@ -6,8 +6,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { findTeamByName } from "@/lib/teams";
 import { ShieldAlert, Save, Search } from "lucide-react";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -17,11 +20,22 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 interface PredictionRow {
+  user_id: string;
   goalkeeper: string | null;
   defenders: string[];
   midfielders: string[];
   forwards: string[];
+  selected_teams: Record<string, string>;
+  profiles: { display_name: string } | null;
 }
+
+interface BonusRow {
+  user_id: string;
+  bombo: number;
+  points: number;
+  penalty: boolean;
+}
+
 
 interface ScoreRow {
   name: string;
@@ -54,9 +68,10 @@ function AdminPage() {
     queryFn: async (): Promise<PredictionRow[]> => {
       const { data, error } = await supabase
         .from("predictions")
-        .select("goalkeeper,defenders,midfielders,forwards");
+        .select("user_id,goalkeeper,defenders,midfielders,forwards,selected_teams,profiles(display_name)")
+        .order("created_at", { ascending: true });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as unknown as PredictionRow[];
     },
   });
 
@@ -69,6 +84,19 @@ function AdminPage() {
       return data ?? [];
     },
   });
+
+  const { data: bonuses } = useQuery({
+    queryKey: ["team-bonuses"],
+    enabled: !!isAdmin,
+    queryFn: async (): Promise<BonusRow[]> => {
+      const { data, error } = await (supabase as any)
+        .from("team_bonuses")
+        .select("user_id,bombo,points,penalty");
+      if (error) throw error;
+      return (data ?? []) as BonusRow[];
+    },
+  });
+
 
   // Build unique sorted player list from all predictions, grouped by position
   const grouped = useMemo(() => {
@@ -97,6 +125,13 @@ function AdminPage() {
     (scores ?? []).forEach((s) => m.set(s.name, s.points));
     return m;
   }, [scores]);
+
+  const bonusMap = useMemo(() => {
+    const m = new Map<string, BonusRow>();
+    (bonuses ?? []).forEach((b) => m.set(`${b.user_id}:${b.bombo}`, b));
+    return m;
+  }, [bonuses]);
+
 
   if (roleLoading) {
     return (
@@ -183,6 +218,29 @@ function AdminPage() {
             Aún no hay predicciones guardadas.
           </div>
         )}
+
+        <section className="mt-12">
+          <h2 className="mb-1 font-display text-2xl font-bold">Bonus por equipos</h2>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Para cada usuario, asigna +1, +2 o +3 puntos por el equipo elegido en cada bombo. Marca la casilla
+            "Penaltis" si el equipo ganó por penaltis (+1 extra).
+          </p>
+          <div className="space-y-6">
+            {(preds ?? []).map((p) => (
+              <UserBonusCard
+                key={p.user_id}
+                userId={p.user_id}
+                displayName={p.profiles?.display_name ?? "Anónimo"}
+                selectedTeams={p.selected_teams}
+                bonusMap={bonusMap}
+                onSaved={() => {
+                  qc.invalidateQueries({ queryKey: ["team-bonuses"] });
+                  qc.invalidateQueries({ queryKey: ["leaderboard"] });
+                }}
+              />
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   );
@@ -190,6 +248,7 @@ function AdminPage() {
 
 const POS_LABEL: Record<"GK" | "DEF" | "MID" | "FWD", string> = {
   GK: "Porteros",
+
   DEF: "Defensas",
   MID: "Mediocentros",
   FWD: "Delanteros",
@@ -262,3 +321,136 @@ function ScoreRowEditor({
     </div>
   );
 }
+
+function UserBonusCard({
+  userId,
+  displayName,
+  selectedTeams,
+  bonusMap,
+  onSaved,
+}: {
+  userId: string;
+  displayName: string;
+  selectedTeams: Record<string, string>;
+  bonusMap: Map<string, BonusRow>;
+  onSaved: () => void;
+}) {
+  const bombos = Array.from({ length: 12 }, (_, i) => i + 1);
+  const userTotal = bombos.reduce((sum, b) => {
+    const row = bonusMap.get(`${userId}:${b}`);
+    return sum + (row ? row.points + (row.penalty ? 1 : 0) : 0);
+  }, 0);
+
+  return (
+    <div className="rounded-xl border bg-card p-4 shadow-sm">
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="font-display text-lg font-bold">{displayName}</h3>
+        <span className="rounded bg-primary/10 px-2 py-1 font-mono text-xs text-primary">
+          Total bonus: {userTotal} pts
+        </span>
+      </div>
+      <div className="grid gap-2 md:grid-cols-2">
+        {bombos.map((b) => {
+          const teamName = selectedTeams?.[String(b)];
+          if (!teamName) return null;
+          const current = bonusMap.get(`${userId}:${b}`);
+          return (
+            <BonusRowEditor
+              key={b}
+              userId={userId}
+              bombo={b}
+              teamName={teamName}
+              initialPoints={current?.points ?? 0}
+              initialPenalty={current?.penalty ?? false}
+              onSaved={onSaved}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function BonusRowEditor({
+  userId,
+  bombo,
+  teamName,
+  initialPoints,
+  initialPenalty,
+  onSaved,
+}: {
+  userId: string;
+  bombo: number;
+  teamName: string;
+  initialPoints: number;
+  initialPenalty: boolean;
+  onSaved: () => void;
+}) {
+  const team = findTeamByName(teamName);
+  const [points, setPoints] = useState(initialPoints);
+  const [penalty, setPenalty] = useState(initialPenalty);
+  const [saving, setSaving] = useState(false);
+  const dirty = points !== initialPoints || penalty !== initialPenalty;
+
+  useEffect(() => {
+    setPoints(initialPoints);
+    setPenalty(initialPenalty);
+  }, [initialPoints, initialPenalty]);
+
+  async function save() {
+    setSaving(true);
+    const { error } = await (supabase as any)
+      .from("team_bonuses")
+      .upsert(
+        { user_id: userId, bombo, points, penalty },
+        { onConflict: "user_id,bombo" },
+      );
+    setSaving(false);
+    if (error) toast.error(error.message);
+    else {
+      toast.success(`B${bombo} · ${teamName}: ${points + (penalty ? 1 : 0)} pts`);
+      onSaved();
+    }
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/30 p-2.5">
+      <span className="font-mono text-xs text-muted-foreground">B{bombo}</span>
+      <span className="text-base leading-none">{team?.flag ?? "🏳️"}</span>
+      <span className="min-w-0 flex-1 truncate text-sm font-medium">{team?.name ?? teamName}</span>
+      <div className="flex items-center gap-1">
+        {[0, 1, 2, 3].map((n) => (
+          <button
+            key={n}
+            type="button"
+            onClick={() => setPoints(n)}
+            className={`h-7 w-7 rounded text-xs font-bold transition-colors ${
+              points === n
+                ? "bg-primary text-primary-foreground"
+                : "bg-background text-muted-foreground hover:bg-accent"
+            }`}
+          >
+            {n === 0 ? "—" : `+${n}`}
+          </button>
+        ))}
+      </div>
+      <label className="flex items-center gap-1.5 text-xs">
+        <Checkbox
+          checked={penalty}
+          onCheckedChange={(v) => setPenalty(v === true)}
+        />
+        Penaltis
+      </label>
+      <Button
+        type="button"
+        size="sm"
+        variant={dirty ? "default" : "outline"}
+        onClick={save}
+        disabled={saving || !dirty}
+      >
+        <Save className="h-3.5 w-3.5" />
+      </Button>
+    </div>
+  );
+}
+

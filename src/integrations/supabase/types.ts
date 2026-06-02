@@ -100,6 +100,30 @@ export type Database = {
         }
         Relationships: []
       }
+      team_bonuses: {
+        Row: {
+          bombo: number
+          penalty: boolean
+          points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bombo: number
+          penalty?: boolean
+          points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bombo?: number
+          penalty?: boolean
+          points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
