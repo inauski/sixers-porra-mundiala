@@ -126,6 +126,13 @@ function AdminPage() {
     return m;
   }, [scores]);
 
+  const bonusMap = useMemo(() => {
+    const m = new Map<string, BonusRow>();
+    (bonuses ?? []).forEach((b) => m.set(`${b.user_id}:${b.bombo}`, b));
+    return m;
+  }, [bonuses]);
+
+
   if (roleLoading) {
     return (
       <div className="min-h-screen bg-background">
