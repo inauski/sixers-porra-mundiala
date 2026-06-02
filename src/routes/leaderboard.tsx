@@ -36,6 +36,7 @@ interface PredictionRow {
 }
 
 function LeaderboardPage() {
+  const [selected, setSelected] = useState<PredictionRow | null>(null);
   const { data, isLoading } = useQuery({
     queryKey: ["leaderboard"],
     queryFn: async (): Promise<PredictionRow[]> => {
