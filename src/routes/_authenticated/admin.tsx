@@ -321,3 +321,136 @@ function ScoreRowEditor({
     </div>
   );
 }
+
+function UserBonusCard({
+  userId,
+  displayName,
+  selectedTeams,
+  bonusMap,
+  onSaved,
+}: {
+  userId: string;
+  displayName: string;
+  selectedTeams: Record<string, string>;
+  bonusMap: Map<string, BonusRow>;
+  onSaved: () => void;
+}) {
+  const bombos = Array.from({ length: 12 }, (_, i) => i + 1);
+  const userTotal = bombos.reduce((sum, b) => {
+    const row = bonusMap.get(`${userId}:${b}`);
+    return sum + (row ? row.points + (row.penalty ? 1 : 0) : 0);
+  }, 0);
+
+  return (
+    <div className="rounded-xl border bg-card p-4 shadow-sm">
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="font-display text-lg font-bold">{displayName}</h3>
+        <span className="rounded bg-primary/10 px-2 py-1 font-mono text-xs text-primary">
+          Total bonus: {userTotal} pts
+        </span>
+      </div>
+      <div className="grid gap-2 md:grid-cols-2">
+        {bombos.map((b) => {
+          const teamName = selectedTeams?.[String(b)];
+          if (!teamName) return null;
+          const current = bonusMap.get(`${userId}:${b}`);
+          return (
+            <BonusRowEditor
+              key={b}
+              userId={userId}
+              bombo={b}
+              teamName={teamName}
+              initialPoints={current?.points ?? 0}
+              initialPenalty={current?.penalty ?? false}
+              onSaved={onSaved}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function BonusRowEditor({
+  userId,
+  bombo,
+  teamName,
+  initialPoints,
+  initialPenalty,
+  onSaved,
+}: {
+  userId: string;
+  bombo: number;
+  teamName: string;
+  initialPoints: number;
+  initialPenalty: boolean;
+  onSaved: () => void;
+}) {
+  const team = findTeamByName(teamName);
+  const [points, setPoints] = useState(initialPoints);
+  const [penalty, setPenalty] = useState(initialPenalty);
+  const [saving, setSaving] = useState(false);
+  const dirty = points !== initialPoints || penalty !== initialPenalty;
+
+  useEffect(() => {
+    setPoints(initialPoints);
+    setPenalty(initialPenalty);
+  }, [initialPoints, initialPenalty]);
+
+  async function save() {
+    setSaving(true);
+    const { error } = await (supabase as any)
+      .from("team_bonuses")
+      .upsert(
+        { user_id: userId, bombo, points, penalty },
+        { onConflict: "user_id,bombo" },
+      );
+    setSaving(false);
+    if (error) toast.error(error.message);
+    else {
+      toast.success(`B${bombo} · ${teamName}: ${points + (penalty ? 1 : 0)} pts`);
+      onSaved();
+    }
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/30 p-2.5">
+      <span className="font-mono text-xs text-muted-foreground">B{bombo}</span>
+      <span className="text-base leading-none">{team?.flag ?? "🏳️"}</span>
+      <span className="min-w-0 flex-1 truncate text-sm font-medium">{team?.name ?? teamName}</span>
+      <div className="flex items-center gap-1">
+        {[0, 1, 2, 3].map((n) => (
+          <button
+            key={n}
+            type="button"
+            onClick={() => setPoints(n)}
+            className={`h-7 w-7 rounded text-xs font-bold transition-colors ${
+              points === n
+                ? "bg-primary text-primary-foreground"
+                : "bg-background text-muted-foreground hover:bg-accent"
+            }`}
+          >
+            {n === 0 ? "—" : `+${n}`}
+          </button>
+        ))}
+      </div>
+      <label className="flex items-center gap-1.5 text-xs">
+        <Checkbox
+          checked={penalty}
+          onCheckedChange={(v) => setPenalty(v === true)}
+        />
+        Penaltis
+      </label>
+      <Button
+        type="button"
+        size="sm"
+        variant={dirty ? "default" : "outline"}
+        onClick={save}
+        disabled={saving || !dirty}
+      >
+        <Save className="h-3.5 w-3.5" />
+      </Button>
+    </div>
+  );
+}
+
