@@ -20,11 +20,22 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 interface PredictionRow {
+  user_id: string;
   goalkeeper: string | null;
   defenders: string[];
   midfielders: string[];
   forwards: string[];
+  selected_teams: Record<string, string>;
+  profiles: { display_name: string } | null;
 }
+
+interface BonusRow {
+  user_id: string;
+  bombo: number;
+  points: number;
+  penalty: boolean;
+}
+
 
 interface ScoreRow {
   name: string;
