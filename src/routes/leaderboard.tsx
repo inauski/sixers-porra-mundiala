@@ -1,10 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
-import { Trophy, Medal, Award } from "lucide-react";
+import { Trophy, Medal, Award, Eye } from "lucide-react";
 import { findFormation } from "@/lib/formations";
 import { findTeamByName } from "@/lib/teams";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
@@ -33,6 +36,7 @@ interface PredictionRow {
 }
 
 function LeaderboardPage() {
+  const [selected, setSelected] = useState<PredictionRow | null>(null);
   const { data, isLoading } = useQuery({
     queryKey: ["leaderboard"],
     queryFn: async (): Promise<PredictionRow[]> => {
@@ -78,6 +82,7 @@ function LeaderboardPage() {
                     <th className="hidden px-4 py-3 text-left md:table-cell">Formación</th>
                     <th className="hidden px-4 py-3 text-left lg:table-cell">Equipos elegidos</th>
                     <th className="px-4 py-3 text-right">Puntos</th>
+                    <th className="px-4 py-3 text-right">Ver</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -113,6 +118,11 @@ function LeaderboardPage() {
                       <td className="px-4 py-3 text-right">
                         <span className="font-display text-lg font-bold text-primary">{row.total_points}</span>
                       </td>
+                      <td className="px-4 py-3 text-right">
+                        <Button size="sm" variant="outline" onClick={() => setSelected(row)}>
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -121,7 +131,68 @@ function LeaderboardPage() {
           </div>
         )}
       </main>
+
+      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+          {selected && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="font-display text-2xl">
+                  Predicción de {selected.profiles?.display_name ?? "Anónimo"}
+                </DialogTitle>
+                <DialogDescription>
+                  Formación {findFormation(selected.formation)?.label ?? selected.formation} ·{" "}
+                  <span className="font-semibold text-primary">{selected.total_points} pts</span>
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-5">
+                <section>
+                  <h3 className="mb-2 font-display text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                    Equipos elegidos
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(selected.selected_teams).map(([bombo, tname]) => {
+                      const t = findTeamByName(tname);
+                      return (
+                        <span key={bombo} className="inline-flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-1.5 text-sm">
+                          <span className="font-mono text-xs text-muted-foreground">B{bombo}</span>
+                          <span className="text-lg leading-none">{t?.flag ?? "🏳️"}</span>
+                          <span className="font-medium">{t?.name ?? tname}</span>
+                        </span>
+                      );
+                    })}
+                  </div>
+                </section>
+
+                <PlayerGroup label="Portero" players={selected.goalkeeper ? [selected.goalkeeper] : []} />
+                <PlayerGroup label="Defensas" players={selected.defenders} />
+                <PlayerGroup label="Mediocentros" players={selected.midfielders} />
+                <PlayerGroup label="Delanteros" players={selected.forwards} />
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+function PlayerGroup({ label, players }: { label: string; players: string[] }) {
+  if (!players?.length) return null;
+  return (
+    <section>
+      <h3 className="mb-2 font-display text-sm font-bold uppercase tracking-wider text-muted-foreground">
+        {label}
+      </h3>
+      <div className="flex flex-wrap gap-2">
+        {players.map((p) => (
+          <span key={p} className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+            {p}
+          </span>
+        ))}
+      </div>
+    </section>
   );
 }
 
