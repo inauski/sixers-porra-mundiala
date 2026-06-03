@@ -103,7 +103,7 @@ function AdminPage() {
     queryFn: async (): Promise<BonusRow[]> => {
       const { data, error } = await (supabase as any)
         .from("team_bonuses")
-        .select("user_id,bombo,points,penalty");
+        .select("user_id,bombo,matchday,points,penalty");
       if (error) throw error;
       return (data ?? []) as BonusRow[];
     },
