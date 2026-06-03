@@ -92,9 +92,11 @@ function AdminPage() {
     queryKey: ["player-scores"],
     enabled: !!isAdmin,
     queryFn: async (): Promise<ScoreRow[]> => {
-      const { data, error } = await supabase.from("player_scores").select("name,points");
+      const { data, error } = await (supabase as any)
+        .from("player_scores")
+        .select("name,matchday,points");
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as ScoreRow[];
     },
   });
 
