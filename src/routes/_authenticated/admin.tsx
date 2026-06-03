@@ -51,6 +51,7 @@ const MATCHDAY_LABELS: Record<number, string> = {
 
 interface ScoreRow {
   name: string;
+  matchday: number;
   points: number;
 }
 
@@ -91,9 +92,11 @@ function AdminPage() {
     queryKey: ["player-scores"],
     enabled: !!isAdmin,
     queryFn: async (): Promise<ScoreRow[]> => {
-      const { data, error } = await supabase.from("player_scores").select("name,points");
+      const { data, error } = await (supabase as any)
+        .from("player_scores")
+        .select("name,matchday,points");
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as ScoreRow[];
     },
   });
 
@@ -134,7 +137,7 @@ function AdminPage() {
 
   const scoreMap = useMemo(() => {
     const m = new Map<string, number>();
-    (scores ?? []).forEach((s) => m.set(s.name, s.points));
+    (scores ?? []).forEach((s) => m.set(`${s.name}:${s.matchday}`, s.points));
     return m;
   }, [scores]);
 
@@ -208,12 +211,12 @@ function AdminPage() {
               <h2 className="mb-3 font-display text-lg font-bold">
                 {POS_LABEL[pos]} <span className="text-muted-foreground">({list.length})</span>
               </h2>
-              <div className="grid gap-2 md:grid-cols-2">
+              <div className="grid gap-2">
                 {list.map((name) => (
-                  <ScoreRowEditor
+                  <PlayerScoreBlock
                     key={name}
                     name={name}
-                    initial={scoreMap.get(name) ?? 0}
+                    scoreMap={scoreMap}
                     onSaved={() => {
                       qc.invalidateQueries({ queryKey: ["player-scores"] });
                       qc.invalidateQueries({ queryKey: ["leaderboard"] });
@@ -266,12 +269,49 @@ const POS_LABEL: Record<"GK" | "DEF" | "MID" | "FWD", string> = {
   FWD: "Delanteros",
 };
 
+function PlayerScoreBlock({
+  name,
+  scoreMap,
+  onSaved,
+}: {
+  name: string;
+  scoreMap: Map<string, number>;
+  onSaved: () => void;
+}) {
+  const matchdays = Array.from({ length: 8 }, (_, i) => i + 1);
+  const total = matchdays.reduce((s, md) => s + (scoreMap.get(`${name}:${md}`) ?? 0), 0);
+
+  return (
+    <div className="rounded-lg border bg-card p-3 shadow-sm">
+      <div className="mb-2 flex items-center gap-2">
+        <span className="flex-1 truncate text-sm font-semibold">{name}</span>
+        <span className="rounded bg-primary/10 px-2 py-0.5 font-mono text-xs text-primary">
+          {total} pts
+        </span>
+      </div>
+      <div className="grid gap-1.5 sm:grid-cols-2">
+        {matchdays.map((md) => (
+          <ScoreRowEditor
+            key={md}
+            name={name}
+            matchday={md}
+            initial={scoreMap.get(`${name}:${md}`) ?? 0}
+            onSaved={onSaved}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ScoreRowEditor({
   name,
+  matchday,
   initial,
   onSaved,
 }: {
   name: string;
+  matchday: number;
   initial: number;
   onSaved: () => void;
 }) {
@@ -293,21 +333,23 @@ function ScoreRowEditor({
       return toast.error("Puntos fuera de rango (-1000 a 1000).");
     }
     setSaving(true);
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("player_scores")
-      .upsert({ name, points: n }, { onConflict: "name" });
+      .upsert({ name, matchday, points: n }, { onConflict: "name,matchday" });
     setSaving(false);
     if (error) toast.error(error.message);
     else {
-      toast.success(`${name}: ${n} pts`);
+      toast.success(`${name} · ${MATCHDAY_LABELS[matchday]}: ${n} pts`);
       setDirty(false);
       onSaved();
     }
   }
 
   return (
-    <div className="flex items-center gap-2 rounded-lg border bg-card p-3 shadow-sm">
-      <div className="min-w-0 flex-1 truncate font-medium">{name}</div>
+    <div className="flex items-center gap-2 rounded-md border bg-background/60 px-2 py-1.5">
+      <span className="w-20 shrink-0 font-mono text-[11px] text-muted-foreground">
+        {MATCHDAY_LABELS[matchday]}
+      </span>
       <Input
         type="number"
         inputMode="numeric"
@@ -319,7 +361,7 @@ function ScoreRowEditor({
         onKeyDown={(e) => {
           if (e.key === "Enter") save();
         }}
-        className="w-24 text-right"
+        className="h-8 flex-1 text-right"
       />
       <Button
         type="button"

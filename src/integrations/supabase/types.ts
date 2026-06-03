@@ -16,16 +16,19 @@ export type Database = {
     Tables: {
       player_scores: {
         Row: {
+          matchday: number
           name: string
           points: number
           updated_at: string
         }
         Insert: {
+          matchday?: number
           name: string
           points?: number
           updated_at?: string
         }
         Update: {
+          matchday?: number
           name?: string
           points?: number
           updated_at?: string
