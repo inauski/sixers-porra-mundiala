@@ -103,6 +103,7 @@ export type Database = {
       team_bonuses: {
         Row: {
           bombo: number
+          matchday: number
           penalty: boolean
           points: number
           updated_at: string
@@ -110,6 +111,7 @@ export type Database = {
         }
         Insert: {
           bombo: number
+          matchday?: number
           penalty?: boolean
           points?: number
           updated_at?: string
@@ -117,6 +119,7 @@ export type Database = {
         }
         Update: {
           bombo?: number
+          matchday?: number
           penalty?: boolean
           points?: number
           updated_at?: string

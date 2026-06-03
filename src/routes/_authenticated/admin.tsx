@@ -32,9 +32,21 @@ interface PredictionRow {
 interface BonusRow {
   user_id: string;
   bombo: number;
+  matchday: number;
   points: number;
   penalty: boolean;
 }
+
+const MATCHDAY_LABELS: Record<number, string> = {
+  1: "Grupo J1",
+  2: "Grupo J2",
+  3: "Grupo J3",
+  4: "1/16",
+  5: "Octavos",
+  6: "Cuartos",
+  7: "Semifinal",
+  8: "Final",
+};
 
 
 interface ScoreRow {
@@ -91,7 +103,7 @@ function AdminPage() {
     queryFn: async (): Promise<BonusRow[]> => {
       const { data, error } = await (supabase as any)
         .from("team_bonuses")
-        .select("user_id,bombo,points,penalty");
+        .select("user_id,bombo,matchday,points,penalty");
       if (error) throw error;
       return (data ?? []) as BonusRow[];
     },
@@ -128,7 +140,7 @@ function AdminPage() {
 
   const bonusMap = useMemo(() => {
     const m = new Map<string, BonusRow>();
-    (bonuses ?? []).forEach((b) => m.set(`${b.user_id}:${b.bombo}`, b));
+    (bonuses ?? []).forEach((b) => m.set(`${b.user_id}:${b.bombo}:${b.matchday}`, b));
     return m;
   }, [bonuses]);
 
@@ -336,9 +348,12 @@ function UserBonusCard({
   onSaved: () => void;
 }) {
   const bombos = Array.from({ length: 12 }, (_, i) => i + 1);
+  const matchdays = Array.from({ length: 8 }, (_, i) => i + 1);
   const userTotal = bombos.reduce((sum, b) => {
-    const row = bonusMap.get(`${userId}:${b}`);
-    return sum + (row ? row.points + (row.penalty ? 1 : 0) : 0);
+    return matchdays.reduce((s, md) => {
+      const row = bonusMap.get(`${userId}:${b}:${md}`);
+      return s + (row ? row.points + (row.penalty ? 1 : 0) : 0);
+    }, sum);
   }, 0);
 
   return (
@@ -349,16 +364,65 @@ function UserBonusCard({
           Total bonus: {userTotal} pts
         </span>
       </div>
-      <div className="grid gap-2 md:grid-cols-2">
+      <div className="space-y-4">
         {bombos.map((b) => {
           const teamName = selectedTeams?.[String(b)];
           if (!teamName) return null;
-          const current = bonusMap.get(`${userId}:${b}`);
           return (
-            <BonusRowEditor
+            <TeamBonusBlock
               key={b}
               userId={userId}
               bombo={b}
+              teamName={teamName}
+              bonusMap={bonusMap}
+              onSaved={onSaved}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function TeamBonusBlock({
+  userId,
+  bombo,
+  teamName,
+  bonusMap,
+  onSaved,
+}: {
+  userId: string;
+  bombo: number;
+  teamName: string;
+  bonusMap: Map<string, BonusRow>;
+  onSaved: () => void;
+}) {
+  const team = findTeamByName(teamName);
+  const matchdays = Array.from({ length: 8 }, (_, i) => i + 1);
+  const teamTotal = matchdays.reduce((s, md) => {
+    const row = bonusMap.get(`${userId}:${bombo}:${md}`);
+    return s + (row ? row.points + (row.penalty ? 1 : 0) : 0);
+  }, 0);
+
+  return (
+    <div className="rounded-lg border bg-muted/20 p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <span className="font-mono text-xs text-muted-foreground">B{bombo}</span>
+        <span className="text-lg leading-none">{team?.flag ?? "🏳️"}</span>
+        <span className="flex-1 truncate text-sm font-semibold">{team?.name ?? teamName}</span>
+        <span className="rounded bg-primary/10 px-2 py-0.5 font-mono text-xs text-primary">
+          {teamTotal} pts
+        </span>
+      </div>
+      <div className="grid gap-1.5">
+        {matchdays.map((md) => {
+          const current = bonusMap.get(`${userId}:${bombo}:${md}`);
+          return (
+            <BonusRowEditor
+              key={md}
+              userId={userId}
+              bombo={bombo}
+              matchday={md}
               teamName={teamName}
               initialPoints={current?.points ?? 0}
               initialPenalty={current?.penalty ?? false}
@@ -374,6 +438,7 @@ function UserBonusCard({
 function BonusRowEditor({
   userId,
   bombo,
+  matchday,
   teamName,
   initialPoints,
   initialPenalty,
@@ -381,12 +446,12 @@ function BonusRowEditor({
 }: {
   userId: string;
   bombo: number;
+  matchday: number;
   teamName: string;
   initialPoints: number;
   initialPenalty: boolean;
   onSaved: () => void;
 }) {
-  const team = findTeamByName(teamName);
   const [points, setPoints] = useState(initialPoints);
   const [penalty, setPenalty] = useState(initialPenalty);
   const [saving, setSaving] = useState(false);
@@ -402,22 +467,24 @@ function BonusRowEditor({
     const { error } = await (supabase as any)
       .from("team_bonuses")
       .upsert(
-        { user_id: userId, bombo, points, penalty },
-        { onConflict: "user_id,bombo" },
+        { user_id: userId, bombo, matchday, points, penalty },
+        { onConflict: "user_id,bombo,matchday" },
       );
     setSaving(false);
     if (error) toast.error(error.message);
     else {
-      toast.success(`B${bombo} · ${teamName}: ${points + (penalty ? 1 : 0)} pts`);
+      toast.success(
+        `B${bombo} · ${MATCHDAY_LABELS[matchday]} · ${teamName}: ${points + (penalty ? 1 : 0)} pts`,
+      );
       onSaved();
     }
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/30 p-2.5">
-      <span className="font-mono text-xs text-muted-foreground">B{bombo}</span>
-      <span className="text-base leading-none">{team?.flag ?? "🏳️"}</span>
-      <span className="min-w-0 flex-1 truncate text-sm font-medium">{team?.name ?? teamName}</span>
+    <div className="flex flex-wrap items-center gap-2 rounded-md border bg-background/60 px-2 py-1.5">
+      <span className="w-20 shrink-0 font-mono text-[11px] text-muted-foreground">
+        {MATCHDAY_LABELS[matchday]}
+      </span>
       <div className="flex items-center gap-1">
         {[0, 1, 2, 3].map((n) => (
           <button
@@ -427,7 +494,7 @@ function BonusRowEditor({
             className={`h-7 w-7 rounded text-xs font-bold transition-colors ${
               points === n
                 ? "bg-primary text-primary-foreground"
-                : "bg-background text-muted-foreground hover:bg-accent"
+                : "bg-muted text-muted-foreground hover:bg-accent"
             }`}
           >
             {n === 0 ? "—" : `+${n}`}
@@ -447,6 +514,7 @@ function BonusRowEditor({
         variant={dirty ? "default" : "outline"}
         onClick={save}
         disabled={saving || !dirty}
+        className="ml-auto"
       >
         <Save className="h-3.5 w-3.5" />
       </Button>
