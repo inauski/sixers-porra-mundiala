@@ -32,9 +32,21 @@ interface PredictionRow {
 interface BonusRow {
   user_id: string;
   bombo: number;
+  matchday: number;
   points: number;
   penalty: boolean;
 }
+
+const MATCHDAY_LABELS: Record<number, string> = {
+  1: "Grupo J1",
+  2: "Grupo J2",
+  3: "Grupo J3",
+  4: "1/16",
+  5: "Octavos",
+  6: "Cuartos",
+  7: "Semifinal",
+  8: "Final",
+};
 
 
 interface ScoreRow {
