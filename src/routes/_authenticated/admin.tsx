@@ -211,12 +211,12 @@ function AdminPage() {
               <h2 className="mb-3 font-display text-lg font-bold">
                 {POS_LABEL[pos]} <span className="text-muted-foreground">({list.length})</span>
               </h2>
-              <div className="grid gap-2 md:grid-cols-2">
+              <div className="grid gap-2">
                 {list.map((name) => (
-                  <ScoreRowEditor
+                  <PlayerScoreBlock
                     key={name}
                     name={name}
-                    initial={scoreMap.get(name) ?? 0}
+                    scoreMap={scoreMap}
                     onSaved={() => {
                       qc.invalidateQueries({ queryKey: ["player-scores"] });
                       qc.invalidateQueries({ queryKey: ["leaderboard"] });
