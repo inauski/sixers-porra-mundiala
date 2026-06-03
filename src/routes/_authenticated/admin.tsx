@@ -137,7 +137,7 @@ function AdminPage() {
 
   const scoreMap = useMemo(() => {
     const m = new Map<string, number>();
-    (scores ?? []).forEach((s) => m.set(s.name, s.points));
+    (scores ?? []).forEach((s) => m.set(`${s.name}:${s.matchday}`, s.points));
     return m;
   }, [scores]);
 
