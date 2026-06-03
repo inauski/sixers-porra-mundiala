@@ -51,6 +51,7 @@ const MATCHDAY_LABELS: Record<number, string> = {
 
 interface ScoreRow {
   name: string;
+  matchday: number;
   points: number;
 }
 
