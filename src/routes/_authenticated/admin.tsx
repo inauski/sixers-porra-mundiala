@@ -140,7 +140,7 @@ function AdminPage() {
 
   const bonusMap = useMemo(() => {
     const m = new Map<string, BonusRow>();
-    (bonuses ?? []).forEach((b) => m.set(`${b.user_id}:${b.bombo}`, b));
+    (bonuses ?? []).forEach((b) => m.set(`${b.user_id}:${b.bombo}:${b.matchday}`, b));
     return m;
   }, [bonuses]);
 
