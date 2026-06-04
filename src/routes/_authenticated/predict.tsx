@@ -10,8 +10,10 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
-import { Check, Save, Trophy } from "lucide-react";
+import { Check, Save, Trophy, FileText, Download } from "lucide-react";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import convocatoriasPdf from "@/assets/convocatorias.pdf.asset.json";
 
 export const Route = createFileRoute("/_authenticated/predict")({
   head: () => ({
