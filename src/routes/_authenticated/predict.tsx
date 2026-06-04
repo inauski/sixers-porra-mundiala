@@ -228,7 +228,36 @@ function PredictPage() {
                 <DialogHeader className="p-4 border-b">
                   <DialogTitle>Lista completa de convocados — Mundial 2026</DialogTitle>
                 </DialogHeader>
-                <iframe src={convocatoriasPdf.url} className="flex-1 w-full" title="Convocatorias Mundial 2026" />
+                <div className="flex-1 overflow-y-auto px-6 pb-6">
+                  <div className="space-y-6">
+                    {CONVOCATORIAS.map((g) => (
+                      <section key={g.group}>
+                        <h3 className="font-display text-lg font-bold text-primary border-b pb-1 mb-3">{g.group}</h3>
+                        <div className="space-y-4">
+                          {g.teams.map((t) => (
+                            <div key={t.team} className="rounded-lg border bg-card p-3">
+                              <h4 className="font-display font-semibold mb-2">{t.team}</h4>
+                              <dl className="space-y-1.5 text-sm">
+                                {t.squad.porteros && (
+                                  <div><dt className="inline font-semibold">Porteros: </dt><dd className="inline text-muted-foreground">{t.squad.porteros}</dd></div>
+                                )}
+                                {t.squad.defensas && (
+                                  <div><dt className="inline font-semibold">Defensas: </dt><dd className="inline text-muted-foreground">{t.squad.defensas}</dd></div>
+                                )}
+                                {t.squad.centrocampistas && (
+                                  <div><dt className="inline font-semibold">Centrocampistas: </dt><dd className="inline text-muted-foreground">{t.squad.centrocampistas}</dd></div>
+                                )}
+                                {t.squad.delanteros && (
+                                  <div><dt className="inline font-semibold">Delanteros: </dt><dd className="inline text-muted-foreground">{t.squad.delanteros}</dd></div>
+                                )}
+                              </dl>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    ))}
+                  </div>
+                </div>
               </DialogContent>
             </Dialog>
             <Button type="button" variant="outline" size="sm" asChild>
