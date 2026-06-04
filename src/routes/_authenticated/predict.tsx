@@ -14,6 +14,7 @@ import { Check, Save, Trophy, FileText, Download } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import convocatoriasPdf from "@/assets/convocatorias.pdf.asset.json";
+import { CONVOCATORIAS } from "@/lib/convocatorias";
 
 export const Route = createFileRoute("/_authenticated/predict")({
   head: () => ({
