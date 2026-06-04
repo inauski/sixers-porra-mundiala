@@ -10,8 +10,10 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
-import { Check, Save, Trophy } from "lucide-react";
+import { Check, Save, Trophy, FileText, Download } from "lucide-react";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import convocatoriasPdf from "@/assets/convocatorias.pdf.asset.json";
 
 export const Route = createFileRoute("/_authenticated/predict")({
   head: () => ({
@@ -211,9 +213,31 @@ function PredictPage() {
         {/* Players */}
         <section className="mb-12">
           <h2 className="font-display text-2xl font-bold">3 · Monta tu once</h2>
-          <p className="mb-6 text-sm text-muted-foreground">
+          <p className="mb-4 text-sm text-muted-foreground">
             Solo verás jugadores de las {selectedTeamNames.length || "—"} selecciones que elegiste.
           </p>
+          <div className="mb-6 flex flex-wrap gap-2">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button type="button" variant="outline" size="sm">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Ver lista de convocados
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-5xl h-[85vh] p-0 flex flex-col">
+                <DialogHeader className="p-4 border-b">
+                  <DialogTitle>Lista completa de convocados — Mundial 2026</DialogTitle>
+                </DialogHeader>
+                <iframe src={convocatoriasPdf.url} className="flex-1 w-full" title="Convocatorias Mundial 2026" />
+              </DialogContent>
+            </Dialog>
+            <Button type="button" variant="outline" size="sm" asChild>
+              <a href={convocatoriasPdf.url} download="Convocatorias_Mundial_2026.pdf">
+                <Download className="mr-2 h-4 w-4" />
+                Descargar PDF
+              </a>
+            </Button>
+          </div>
 
           <div className="space-y-5">
             <PlayerSlot
