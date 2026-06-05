@@ -31,10 +31,10 @@ function HomePage() {
               <span>Mundial FIFA 2026 · USA · México · Canadá</span>
             </div>
             <h1 className="font-display text-4xl font-bold leading-tight md:text-6xl">
-              Tu predicción.
+              Elige. Predice. Compite.
               <br />
               <span className="bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
-                Tu fantasy. Tu gloria.
+                Solo uno llegará a la cima.
               </span>
             </h1>
             <p className="mx-auto mt-6 max-w-xl text-lg text-white/80">
