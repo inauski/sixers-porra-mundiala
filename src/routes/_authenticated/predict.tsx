@@ -55,6 +55,36 @@ function PredictPage() {
     },
   });
 
+  const { data: settings } = useQuery({
+    queryKey: ["app-settings"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("app_settings")
+        .select("predictions_editable")
+        .eq("id", true)
+        .maybeSingle();
+      if (error) throw error;
+      return (data ?? { predictions_editable: true }) as { predictions_editable: boolean };
+    },
+  });
+
+  const { data: isAdmin } = useQuery({
+    queryKey: ["is-admin", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user!.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      if (error) throw error;
+      return !!data;
+    },
+  });
+
+  const editingLocked = !(settings?.predictions_editable ?? true) && !isAdmin;
+
   useEffect(() => {
     if (existing) {
       setTeams((existing.selected_teams as SelectedTeams) ?? {});
