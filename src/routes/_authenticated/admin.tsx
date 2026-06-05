@@ -113,6 +113,33 @@ function AdminPage() {
     },
   });
 
+  const { data: settings } = useQuery({
+    queryKey: ["app-settings"],
+    enabled: !!isAdmin,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("app_settings")
+        .select("predictions_editable,leaderboard_details_visible")
+        .eq("id", true)
+        .maybeSingle();
+      if (error) throw error;
+      return (data ?? { predictions_editable: true, leaderboard_details_visible: true }) as {
+        predictions_editable: boolean;
+        leaderboard_details_visible: boolean;
+      };
+    },
+  });
+
+  async function updateSetting(key: "predictions_editable" | "leaderboard_details_visible", value: boolean) {
+    const { error } = await (supabase as any)
+      .from("app_settings")
+      .update({ [key]: value })
+      .eq("id", true);
+    if (error) return toast.error(error.message);
+    toast.success("Ajuste actualizado.");
+    qc.invalidateQueries({ queryKey: ["app-settings"] });
+  }
+
 
   // Build unique sorted player list from all predictions, grouped by position
   const grouped = useMemo(() => {
