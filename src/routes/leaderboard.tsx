@@ -50,6 +50,21 @@ function LeaderboardPage() {
     },
   });
 
+  const { data: settings } = useQuery({
+    queryKey: ["app-settings"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("app_settings")
+        .select("leaderboard_details_visible")
+        .eq("id", true)
+        .maybeSingle();
+      if (error) throw error;
+      return (data ?? { leaderboard_details_visible: true }) as { leaderboard_details_visible: boolean };
+    },
+  });
+  const showDetails = settings?.leaderboard_details_visible ?? true;
+
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
