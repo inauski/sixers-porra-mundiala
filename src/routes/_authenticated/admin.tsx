@@ -219,6 +219,38 @@ function AdminPage() {
           </p>
         </div>
 
+        <section className="mb-8 rounded-xl border bg-card p-4 shadow-sm">
+          <h2 className="mb-3 font-display text-lg font-bold">Ajustes globales</h2>
+          <div className="space-y-3">
+            <label className="flex items-center justify-between gap-4 rounded-lg border bg-background/60 p-3">
+              <div>
+                <div className="text-sm font-semibold">Permitir editar predicciones</div>
+                <div className="text-xs text-muted-foreground">
+                  Cuando está desactivado, los usuarios no podrán modificar su predicción en "Mi predicción".
+                </div>
+              </div>
+              <Switch
+                checked={settings?.predictions_editable ?? true}
+                onCheckedChange={(v) => updateSetting("predictions_editable", v)}
+              />
+            </label>
+            <label className="flex items-center justify-between gap-4 rounded-lg border bg-background/60 p-3">
+              <div>
+                <div className="text-sm font-semibold">Mostrar predicciones en la clasificación</div>
+                <div className="text-xs text-muted-foreground">
+                  Cuando está desactivado, los usuarios solo verán los puntos: se ocultan formación, equipos y el botón "Ver".
+                </div>
+              </div>
+              <Switch
+                checked={settings?.leaderboard_details_visible ?? true}
+                onCheckedChange={(v) => updateSetting("leaderboard_details_visible", v)}
+              />
+            </label>
+          </div>
+        </section>
+
+
+
         <div className="mb-6 flex items-center gap-2 rounded-lg border bg-card px-3 py-2 shadow-sm">
           <Search className="h-4 w-4 text-muted-foreground" />
           <Input
