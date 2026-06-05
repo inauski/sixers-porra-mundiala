@@ -344,9 +344,10 @@ function PredictPage() {
             />
           </div>
         </section>
+        </fieldset>
 
         <div className="flex justify-end">
-          <Button onClick={handleSave} disabled={saving} size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
+          <Button onClick={handleSave} disabled={saving || editingLocked} size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
             <Trophy className="mr-2 h-4 w-4" />
             {saving ? "Guardando…" : "Guardar predicción"}
           </Button>
