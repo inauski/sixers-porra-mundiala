@@ -154,12 +154,21 @@ function PredictPage() {
           <div className="flex items-center gap-4">
             <Progress value={progress} className="h-2 flex-1" />
             <span className="font-display text-sm font-semibold tabular-nums">{progress}%</span>
-            <Button onClick={handleSave} disabled={saving} size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
+            <Button onClick={handleSave} disabled={saving || editingLocked} size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
               <Save className="mr-2 h-4 w-4" />
               {saving ? "Guardando…" : "Guardar"}
             </Button>
           </div>
         </div>
+
+        {editingLocked && (
+          <div className="mb-6 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            La edición de predicciones está desactivada por el administrador. Puedes consultar tu predicción, pero no se puede modificar.
+          </div>
+        )}
+
+        <fieldset disabled={editingLocked} className={editingLocked ? "opacity-70" : ""}>
+
 
         {/* Bombos */}
         <section className="mb-12">
