@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          id: boolean
+          leaderboard_details_visible: boolean
+          predictions_editable: boolean
+          updated_at: string
+        }
+        Insert: {
+          id?: boolean
+          leaderboard_details_visible?: boolean
+          predictions_editable?: boolean
+          updated_at?: string
+        }
+        Update: {
+          id?: boolean
+          leaderboard_details_visible?: boolean
+          predictions_editable?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       player_scores: {
         Row: {
           matchday: number

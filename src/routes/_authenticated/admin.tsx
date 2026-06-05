@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { findTeamByName } from "@/lib/teams";
 import { ShieldAlert, Save, Search } from "lucide-react";
 import { toast } from "sonner";
@@ -112,6 +113,33 @@ function AdminPage() {
     },
   });
 
+  const { data: settings } = useQuery({
+    queryKey: ["app-settings"],
+    enabled: !!isAdmin,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("app_settings")
+        .select("predictions_editable,leaderboard_details_visible")
+        .eq("id", true)
+        .maybeSingle();
+      if (error) throw error;
+      return (data ?? { predictions_editable: true, leaderboard_details_visible: true }) as {
+        predictions_editable: boolean;
+        leaderboard_details_visible: boolean;
+      };
+    },
+  });
+
+  async function updateSetting(key: "predictions_editable" | "leaderboard_details_visible", value: boolean) {
+    const { error } = await (supabase as any)
+      .from("app_settings")
+      .update({ [key]: value })
+      .eq("id", true);
+    if (error) return toast.error(error.message);
+    toast.success("Ajuste actualizado.");
+    qc.invalidateQueries({ queryKey: ["app-settings"] });
+  }
+
 
   // Build unique sorted player list from all predictions, grouped by position
   const grouped = useMemo(() => {
@@ -190,6 +218,38 @@ function AdminPage() {
             {totalPlayers} jugadores únicos elegidos por los usuarios.
           </p>
         </div>
+
+        <section className="mb-8 rounded-xl border bg-card p-4 shadow-sm">
+          <h2 className="mb-3 font-display text-lg font-bold">Ajustes globales</h2>
+          <div className="space-y-3">
+            <label className="flex items-center justify-between gap-4 rounded-lg border bg-background/60 p-3">
+              <div>
+                <div className="text-sm font-semibold">Permitir editar predicciones</div>
+                <div className="text-xs text-muted-foreground">
+                  Cuando está desactivado, los usuarios no podrán modificar su predicción en "Mi predicción".
+                </div>
+              </div>
+              <Switch
+                checked={settings?.predictions_editable ?? true}
+                onCheckedChange={(v) => updateSetting("predictions_editable", v)}
+              />
+            </label>
+            <label className="flex items-center justify-between gap-4 rounded-lg border bg-background/60 p-3">
+              <div>
+                <div className="text-sm font-semibold">Mostrar predicciones en la clasificación</div>
+                <div className="text-xs text-muted-foreground">
+                  Cuando está desactivado, los usuarios solo verán los puntos: se ocultan formación, equipos y el botón "Ver".
+                </div>
+              </div>
+              <Switch
+                checked={settings?.leaderboard_details_visible ?? true}
+                onCheckedChange={(v) => updateSetting("leaderboard_details_visible", v)}
+              />
+            </label>
+          </div>
+        </section>
+
+
 
         <div className="mb-6 flex items-center gap-2 rounded-lg border bg-card px-3 py-2 shadow-sm">
           <Search className="h-4 w-4 text-muted-foreground" />

@@ -55,6 +55,36 @@ function PredictPage() {
     },
   });
 
+  const { data: settings } = useQuery({
+    queryKey: ["app-settings"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("app_settings")
+        .select("predictions_editable")
+        .eq("id", true)
+        .maybeSingle();
+      if (error) throw error;
+      return (data ?? { predictions_editable: true }) as { predictions_editable: boolean };
+    },
+  });
+
+  const { data: isAdmin } = useQuery({
+    queryKey: ["is-admin", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user!.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      if (error) throw error;
+      return !!data;
+    },
+  });
+
+  const editingLocked = !(settings?.predictions_editable ?? true) && !isAdmin;
+
   useEffect(() => {
     if (existing) {
       setTeams((existing.selected_teams as SelectedTeams) ?? {});
@@ -87,6 +117,7 @@ function PredictPage() {
 
   async function handleSave() {
     if (!user) return;
+    if (editingLocked) return toast.error("La edición de predicciones está desactivada por el administrador.");
     if (teamsDone < 12) return toast.error("Elige un equipo en cada uno de los 12 bombos.");
     if (!gk) return toast.error("Elige un portero.");
     if (defs.length !== f.def) return toast.error(`Elige ${f.def} defensas.`);
@@ -123,12 +154,21 @@ function PredictPage() {
           <div className="flex items-center gap-4">
             <Progress value={progress} className="h-2 flex-1" />
             <span className="font-display text-sm font-semibold tabular-nums">{progress}%</span>
-            <Button onClick={handleSave} disabled={saving} size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
+            <Button onClick={handleSave} disabled={saving || editingLocked} size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
               <Save className="mr-2 h-4 w-4" />
               {saving ? "Guardando…" : "Guardar"}
             </Button>
           </div>
         </div>
+
+        {editingLocked && (
+          <div className="mb-6 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            La edición de predicciones está desactivada por el administrador. Puedes consultar tu predicción, pero no se puede modificar.
+          </div>
+        )}
+
+        <fieldset disabled={editingLocked} className={editingLocked ? "opacity-70" : ""}>
+
 
         {/* Bombos */}
         <section className="mb-12">
@@ -304,9 +344,10 @@ function PredictPage() {
             />
           </div>
         </section>
+        </fieldset>
 
         <div className="flex justify-end">
-          <Button onClick={handleSave} disabled={saving} size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
+          <Button onClick={handleSave} disabled={saving || editingLocked} size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
             <Trophy className="mr-2 h-4 w-4" />
             {saving ? "Guardando…" : "Guardar predicción"}
           </Button>
