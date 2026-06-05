@@ -117,6 +117,7 @@ function PredictPage() {
 
   async function handleSave() {
     if (!user) return;
+    if (editingLocked) return toast.error("La edición de predicciones está desactivada por el administrador.");
     if (teamsDone < 12) return toast.error("Elige un equipo en cada uno de los 12 bombos.");
     if (!gk) return toast.error("Elige un portero.");
     if (defs.length !== f.def) return toast.error(`Elige ${f.def} defensas.`);
