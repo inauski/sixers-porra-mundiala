@@ -94,10 +94,10 @@ function LeaderboardPage() {
                   <tr>
                     <th className="px-4 py-3 text-left">#</th>
                     <th className="px-4 py-3 text-left">Jugador</th>
-                    <th className="hidden px-4 py-3 text-left md:table-cell">Formación</th>
-                    <th className="hidden px-4 py-3 text-left lg:table-cell">Equipos elegidos</th>
+                    {showDetails && <th className="hidden px-4 py-3 text-left md:table-cell">Formación</th>}
+                    {showDetails && <th className="hidden px-4 py-3 text-left lg:table-cell">Equipos elegidos</th>}
                     <th className="px-4 py-3 text-right">Puntos</th>
-                    <th className="px-4 py-3 text-right">Ver</th>
+                    {showDetails && <th className="px-4 py-3 text-right">Ver</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -112,32 +112,38 @@ function LeaderboardPage() {
                           {new Date(row.created_at).toLocaleDateString("es-ES")}
                         </div>
                       </td>
-                      <td className="hidden px-4 py-3 md:table-cell">
-                        <span className="rounded bg-primary/10 px-2 py-1 font-mono text-xs text-primary">
-                          {findFormation(row.formation)?.label ?? row.formation}
-                        </span>
-                      </td>
-                      <td className="hidden px-4 py-3 lg:table-cell">
-                        <div className="flex flex-wrap gap-1">
-                          {Object.values(row.selected_teams).map((tname) => {
-                            const t = findTeamByName(tname);
-                            return (
-                              <span key={tname} className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-xs">
-                                <span>{t?.flag ?? "🏳️"}</span>
-                                <span>{t?.code ?? tname}</span>
-                              </span>
-                            );
-                          })}
-                        </div>
-                      </td>
+                      {showDetails && (
+                        <td className="hidden px-4 py-3 md:table-cell">
+                          <span className="rounded bg-primary/10 px-2 py-1 font-mono text-xs text-primary">
+                            {findFormation(row.formation)?.label ?? row.formation}
+                          </span>
+                        </td>
+                      )}
+                      {showDetails && (
+                        <td className="hidden px-4 py-3 lg:table-cell">
+                          <div className="flex flex-wrap gap-1">
+                            {Object.values(row.selected_teams).map((tname) => {
+                              const t = findTeamByName(tname);
+                              return (
+                                <span key={tname} className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-xs">
+                                  <span>{t?.flag ?? "🏳️"}</span>
+                                  <span>{t?.code ?? tname}</span>
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </td>
+                      )}
                       <td className="px-4 py-3 text-right">
                         <span className="font-display text-lg font-bold text-primary">{row.total_points}</span>
                       </td>
-                      <td className="px-4 py-3 text-right">
-                        <Button size="sm" variant="outline" onClick={() => setSelected(row)}>
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </td>
+                      {showDetails && (
+                        <td className="px-4 py-3 text-right">
+                          <Button size="sm" variant="outline" onClick={() => setSelected(row)}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
