@@ -19,7 +19,7 @@ import { CONVOCATORIAS } from "@/lib/convocatorias";
 export const Route = createFileRoute("/_authenticated/predict")({
   head: () => ({
     meta: [
-      { title: "Mi predicción — SixersPredict" },
+      { title: "Mi predicción — SixersPorra" },
       { name: "description", content: "Crea tu predicción del Mundial 2026: 12 equipos, formación y once ideal." },
     ],
   }),

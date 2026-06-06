@@ -77,7 +77,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Porra mundial 2026 Sixers" },
       { name: "description", content: "Plataforma fantasy del Mundial 2026: elige tus equipos por bombo, tu formación y tu once ideal. Compite en la clasificación global." },
-      { name: "author", content: "SixersPredict" },
+      { name: "author", content: "SixersPorra" },
       { property: "og:title", content: "Porra mundial 2026 Sixers" },
       { property: "og:description", content: "Plataforma fantasy del Mundial 2026: elige tus equipos por bombo, tu formación y tu once ideal. Compite en la clasificación global." },
       { property: "og:type", content: "website" },

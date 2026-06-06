@@ -12,9 +12,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
     meta: [
-      { title: "Clasificación — SixersPredict" },
+      { title: "Clasificación — SixersPorra" },
       { name: "description", content: "Tabla pública con todas las predicciones del fantasy del Mundial 2026 y sus puntuaciones." },
-      { property: "og:title", content: "Clasificación · SixersPredict" },
+      { property: "og:title", content: "Clasificación · SixersPorra" },
       { property: "og:description", content: "Tabla pública de predicciones y puntos del fantasy." },
     ],
   }),
