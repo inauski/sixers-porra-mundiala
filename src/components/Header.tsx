@@ -42,7 +42,7 @@ export function Header() {
             <Trophy className="h-5 w-5 text-white" />
           </div>
           <span className="font-display text-lg font-bold tracking-tight">
-            Sixers<span className="text-secondary">Predict</span>
+            Sixers<span className="text-secondary">Porra</span>
           </span>
         </Link>
 
