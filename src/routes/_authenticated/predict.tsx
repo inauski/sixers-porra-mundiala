@@ -308,6 +308,17 @@ function PredictPage() {
               </a>
             </Button>
           </div>
+          <p className="mb-6 text-sm text-muted-foreground">
+            *en caso de duda con alguna posición, consultar en{" "}
+            <a
+              href="https://www.flashscore.es/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-primary"
+            >
+              https://www.flashscore.es/
+            </a>
+          </p>
 
           <div className="space-y-5">
             <PlayerSlot
