@@ -136,6 +136,17 @@ function HomePage() {
               </ul>
             </div>
           </div>
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            *Se dará por válido el marcador de la página{" "}
+            <a
+              href="https://www.flashscore.es/futbol/mundial/campeonato-del-mundo/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-primary"
+            >
+              https://www.flashscore.es/futbol/mundial/campeonato-del-mundo/
+            </a>
+          </p>
         </div>
       </section>
 
