@@ -65,6 +65,7 @@ export type Database = {
           goalkeeper: string | null
           id: string
           midfielders: string[]
+          phase1_points: number
           selected_teams: Json
           total_points: number
           updated_at: string
@@ -78,6 +79,7 @@ export type Database = {
           goalkeeper?: string | null
           id?: string
           midfielders?: string[]
+          phase1_points?: number
           selected_teams?: Json
           total_points?: number
           updated_at?: string
@@ -91,6 +93,7 @@ export type Database = {
           goalkeeper?: string | null
           id?: string
           midfielders?: string[]
+          phase1_points?: number
           selected_teams?: Json
           total_points?: number
           updated_at?: string
