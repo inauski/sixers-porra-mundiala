@@ -151,6 +151,22 @@ function AdminPage() {
     qc.invalidateQueries({ queryKey: ["app-settings"] });
   }
 
+  const [resetting, setResetting] = useState(false);
+  async function resetAllPoints() {
+    setResetting(true);
+    const s = await (supabase as any).from("player_scores").update({ points: 0 }).neq("points", 0);
+    const b = await (supabase as any)
+      .from("team_bonuses")
+      .update({ points: 0, penalty: false })
+      .or("points.neq.0,penalty.eq.true");
+    setResetting(false);
+    if (s.error || b.error) return toast.error(s.error?.message ?? b.error?.message ?? "Error");
+    toast.success("Todos los puntos y bonus han sido reseteados a 0.");
+    qc.invalidateQueries({ queryKey: ["player-scores"] });
+    qc.invalidateQueries({ queryKey: ["team-bonuses"] });
+    qc.invalidateQueries({ queryKey: ["leaderboard"] });
+  }
+
 
   // Build unique sorted player list from all predictions, grouped by position
   const grouped = useMemo(() => {
