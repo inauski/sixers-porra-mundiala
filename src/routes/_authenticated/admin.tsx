@@ -273,6 +273,33 @@ function AdminPage() {
                 onCheckedChange={(v) => updateSetting("leaderboard_details_visible", v)}
               />
             </label>
+            <div className="flex items-center justify-between gap-4 rounded-lg border border-destructive/40 bg-destructive/5 p-3">
+              <div>
+                <div className="text-sm font-semibold text-destructive">Resetear todos los puntos</div>
+                <div className="text-xs text-muted-foreground">
+                  Pone a 0 los puntos de porteros, defensas, mediocentros, delanteros y los bonus por equipos de todos los usuarios.
+                </div>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" disabled={resetting}>
+                    <RotateCcw className="mr-2 h-4 w-4" /> Resetear
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>¿Resetear todos los puntos a 0?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta acción pone a 0 todos los puntos de jugadores y bonus por equipos de todos los usuarios. No se puede deshacer.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={resetAllPoints}>Sí, resetear</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </div>
         </section>
 
