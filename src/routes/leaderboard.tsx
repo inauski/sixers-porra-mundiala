@@ -375,15 +375,24 @@ function MatchdayBreakdown({
           <p className="text-xs text-muted-foreground">Sin bonus en esta selección.</p>
         ) : (
           <ul className="space-y-1 text-xs">
-            {bonusRows.map((b, i) => (
-              <li key={i} className="flex justify-between rounded bg-background/60 px-2 py-1">
-                <span>
-                  {MATCHDAY_LABELS[b.matchday]} · Bombo {b.bombo}
-                  {b.penalty && <span className="ml-1 text-primary">(+1 penaltis)</span>}
-                </span>
-                <span className="font-mono font-semibold">{b.total}</span>
-              </li>
-            ))}
+            {bonusRows.map((b, i) => {
+              const tname = prediction.selected_teams?.[String(b.bombo)];
+              const t = tname ? findTeamByName(tname) : undefined;
+              return (
+                <li key={i} className="flex justify-between rounded bg-background/60 px-2 py-1">
+                  <span>
+                    {MATCHDAY_LABELS[b.matchday]} · Bombo {b.bombo}
+                    {tname && (
+                      <span className="ml-1 text-muted-foreground">
+                        — {t?.flag ?? "🏳️"} {t?.name ?? tname}
+                      </span>
+                    )}
+                    {b.penalty && <span className="ml-1 text-primary">(+1 penaltis)</span>}
+                  </span>
+                  <span className="font-mono font-semibold">{b.total}</span>
+                </li>
+              );
+            })}
             <li className="flex justify-between border-t pt-1 font-semibold">
               <span>Subtotal bonus</span>
               <span className="font-mono">{bonusTotal}</span>
