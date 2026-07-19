@@ -394,7 +394,7 @@ function PlayerScoreBlock({
   scoreMap: Map<string, number>;
   onSaved: () => void;
 }) {
-  const matchdays = Array.from({ length: 8 }, (_, i) => i + 1);
+  const matchdays = MATCHDAYS_ORDER;
   const total = matchdays.reduce((s, md) => s + (scoreMap.get(`${name}:${md}`) ?? 0), 0);
 
   return (
@@ -506,7 +506,7 @@ function UserBonusCard({
   onSaved: () => void;
 }) {
   const bombos = Array.from({ length: 12 }, (_, i) => i + 1);
-  const matchdays = Array.from({ length: 8 }, (_, i) => i + 1);
+  const matchdays = MATCHDAYS_ORDER;
   const userTotal = bombos.reduce((sum, b) => {
     return matchdays.reduce((s, md) => {
       const row = bonusMap.get(`${userId}:${b}:${md}`);
@@ -556,7 +556,7 @@ function TeamBonusBlock({
   onSaved: () => void;
 }) {
   const team = findTeamByName(teamName);
-  const matchdays = Array.from({ length: 8 }, (_, i) => i + 1);
+  const matchdays = MATCHDAYS_ORDER;
   const teamTotal = matchdays.reduce((s, md) => {
     const row = bonusMap.get(`${userId}:${bombo}:${md}`);
     return s + (row ? row.points + (row.penalty ? 1 : 0) : 0);
