@@ -57,8 +57,10 @@ const MATCHDAY_LABELS: Record<number, string> = {
   5: "Octavos",
   6: "Cuartos",
   7: "Semifinal",
+  9: "3-4 puesto",
   8: "Final",
 };
+const MATCHDAYS_ORDER = [1, 2, 3, 4, 5, 6, 7, 9, 8];
 
 
 interface ScoreRow {
