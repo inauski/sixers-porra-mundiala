@@ -303,7 +303,7 @@ function MatchdayBreakdown({
     return list;
   }, [prediction]);
 
-  const matchdays = md === "all" ? [1, 2, 3, 4, 5, 6, 7, 8] : [Number(md)];
+  const matchdays = md === "all" ? MATCHDAYS_ORDER : [Number(md)];
 
   let playerTotal = 0;
   const playerRows = players.map((p) => {
