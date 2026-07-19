@@ -43,8 +43,9 @@ interface BonusRow { user_id: string; bombo: number; matchday: number; points: n
 
 const MATCHDAY_LABELS: Record<number, string> = {
   1: "Grupo J1", 2: "Grupo J2", 3: "Grupo J3", 4: "1/16",
-  5: "Octavos", 6: "Cuartos", 7: "Semifinal", 8: "Final",
+  5: "Octavos", 6: "Cuartos", 7: "Semifinal", 9: "3-4 puesto", 8: "Final",
 };
+const MATCHDAYS_ORDER = [1, 2, 3, 4, 5, 6, 7, 9, 8];
 
 function LeaderboardPage() {
   const [selected, setSelected] = useState<PredictionRow | null>(null);
