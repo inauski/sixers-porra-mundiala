@@ -332,7 +332,7 @@ function MatchdayBreakdown({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas las jornadas</SelectItem>
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((m) => (
+            {MATCHDAYS_ORDER.map((m) => (
               <SelectItem key={m} value={String(m)}>{MATCHDAY_LABELS[m]}</SelectItem>
             ))}
           </SelectContent>
